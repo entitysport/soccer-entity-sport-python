@@ -10,7 +10,7 @@ In this function you have pass some variable like this :
 """
 class Entity:
   def __init__(self):
-    self.api_url_for_get = 'https://rest.entitysport.com/v2/'
+    self.api_url_for_get = 'https://rest.entitysport.com/soccer/'
 
   def CallAPI(self ,method, url,data):
     import requests
@@ -96,11 +96,11 @@ If you do not send the id than u get all data other perticular id info.
 
 """
 
-class Entity_cricket(Entity) :
+class Entity_soccer(Entity) :
 
   def get_seasons_data(self ,sid=0,args={}):     
     if(sid):
-        path = 'seasons/'+str(sid)+'/competitions'
+        path = 'season/'+str(sid)+'/competitions'
     else:
         path = 'seasons'
         
@@ -112,154 +112,81 @@ class Entity_cricket(Entity) :
   #status status code 1 = upcoming, 2 = result, 3 = live.
   def get_all_cometition(self ,cid=0,args={}):     
     if(cid):
-        path = 'competitions/'+str(cid)
+        path = 'competition/'+str(cid)+'/info'
     else:
         path = 'competitions'
         
     return self.api_request(path,args)
+  
+  def get_competition_squad(self, cid,args={}):
+    path = 'competition/'+str(cid)+'/squad'
+
+    return self.api_request(path,args)
   #get perticular competition info with stats ,squads , matches call get_competitions_data(cid,args)
   #this  get_competition_squad(cid) ,get_competition_matches(cid), get_competition_statstic(cid)
-  def get_competition_squad(self, cid,args={}):
-    path = 'competitions/'+str(cid)+'/squads'
-
-    return self.api_request(path,args)
-  
   def get_competition_matches(self, cid,args={}):
-    path = 'competitions/'+str(cid)+'/matches'
+    path = 'competition/'+str(cid)+'/matches'
 
     return self.api_request(path,args)
   
-  def get_competition_teams(self, cid,args={}):
-    path = 'competitions/'+str(cid)+'/teams'
-
-    return self.api_request(path,args)
-  
-  def get_competition_standings(self, cid,args={}):
-    path = 'competitions/'+str(cid)+'/standings'
-
-    return self.api_request(path,args)
-
-  def get_competition_statstic(self, cid,args={},stats=''):
-    path = 'competitions/'+str(cid)+'/stats'
-    if(not stats):
-      path = 'competitions/'+str(cid)+'/stats/'+stats
+  def get_competition_statstic(self, cid,args={}):
+    path = 'competition/'+str(cid)+'/statsv2'
 
     return self.api_request(path,args)
 
   """
   for get data for all metches call get_matches_data(mid=0,args={})
-  here args use for filter data you get. Like paged,per_page,status with those variables.
-  here you can filter matches between dates start_date and end_date with formate yyyy-mm-dd; 
-  formate filter matches by format (ie: odi, test). see properties reference for match format codes
-  status status code 1 = upcoming, 2 = result, 3 = live.
+    here args use for filter data you get. Like paged,per_page,status with those variables.
+    status status code 1 = upcoming, 2 = result, 3 = live.
   """
   def get_matches_data(self ,mid=0,args={}):     
     if(mid):
         path = 'matches/'+str(mid)+'/info'
     else:
         path = 'matches'
-    
-    if("start_date" in args.keys() or "end_date" in args.keys()):
-      return_error = {}
-      return_error["status"] = 'error'
-      import time
-      start = time.strptime(args["start_date"], "%Y-%m-%d")
-      end = time.strptime(args["end_date"], "%Y-%m-%d")
-      if(start > end or start == end):
-        return_error["response"] = 'start date should be less than end date.'
-        return return_error;
-      else:
-        args["date"] = args["start_date"]+'_'+args["end_date"]
-        del args["start_date"]
-        del args["end_date"]
-      
-    
         
     return self.api_request(path,args)
   
-  #get perticular metches info with scorecard  , fantacy call get_matches_scorecard(mid,args) get_matches_fantasy(mid,args) ,get_matches_live(mid,args)
-  def get_matches_scorecard(self, mid,args={}):
-    path = 'matches/'+str(mid)+'/scorecard'
-
-    return self.api_request(path,args)
-
-  def get_matches_live(self, mid,args={}):
-    path = 'matches/'+str(mid)+'/live'
+  #get perticular metches info with stats  , fantacy call get_matches_stats(mid,args)
+  def get_matches_stats(self, mid,args={}):
+    path = 'matches/'+str(mid)+'/statsv2'
 
     return self.api_request(path,args)
 
   def get_matches_fantasy(self, mid,args={}):
-    path = 'matches/'+str(mid)+'/point'
+    path = 'matches/'+str(mid)+'/fantasy'
 
     return self.api_request(path,args)
 
-  def get_matches_squads(self, mid,args={}):
-    path = 'matches/'+str(mid)+'/squads'
-
-    return self.api_request(path,args)
-
-  def get_matches_statistics(self, mid,args={}):
-    path = 'matches/'+str(mid)+'/statistics'
-
-    return self.api_request(path,args)
-  
-  def get_matches_wagons(self, mid,args={}):
-    path = 'matches/'+str(mid)+'/wagons'
-
-    return self.api_request(path,args)
-  
-  #get perticular Match Innings Commentary API
-  def get_matches_inning_commentry(self, mid,inning_num,args={}):
-    path = 'matches/'+str(mid)+'/innings/'+str(inning_num)+'/commentary'
-
-    return self.api_request(path,args)
-
-  #get perticular Fantasy Match Roaster API
-  def get_matches_inning_commentry(self, cid,mid,args={}):
-    path = 'competitions/'+str(cid)+'/squads/'+str(mid)
-
-    return self.api_request(path,args)
-
-
-  #for get data for all teams call get_teams_data(tid,args)
-  def get_teams_data(self ,tid,args={}):   
-    path = 'teams/'+str(tid)
+  #for get data for all teams call get_teams_data(tid=0,args)
+  def get_teams_data(self ,tid=0,args={}):     
+    if(tid):
+        path = 'team/'+str(tid)+'/info'
+    else:
+        path = 'teams'
         
     return self.api_request(path,args)
 
   def get_teams_maches(self, tid,args={}):
-    path = 'teams/'+str(tid)+'/matches'
+    path = 'team/'+str(tid)+'/matches'
 
     return self.api_request(path,args)
 
-  #for get data for all players call get_players_data(pid=0,args)
-  #for get data for plater profile call get_players_data(pid,args)
   def get_players_data(self ,pid=0,args={}):     
     if(pid):
-        path = 'players/'+str(pid)
+        path = 'player/'+str(pid)+'/profile'
     else:
         path = 'players'
         
     return self.api_request(path,args)
-  
-  def get_players_stats(self, pid,args={}):
-    path = 'players/'+str(pid)+'/stats'
-
-    return self.api_request(path,args)
-  
-  # get icc ranking for player iccranks
-  def get_cricket_iccranks(self, args={}):
-    path = 'iccranks'
-
-    return self.api_request(path,args)
 
 
 """
-for example in your project
+for example in your codignator project
 inlude file index.py
 
-and than class Entity_cricket()
-        entity = Entity_cricket()
+and than class Entity_soccer()
+        entity = Entity_soccer()
         result = entity.get_all_cometition()
         this result is your output 
 """
